@@ -14,12 +14,12 @@ loop do
   break if item_name == 'stop'
 
   p 'Please enter price: '
-  item_price = gets.to_f
+  price = gets.to_f
   p 'Please enter quantity of items: '
-  item_quantity = gets.to_f
+  quantity = gets.to_f
 
-  hash[item_name] = { price: item_price, quantity: item_quantity }
-  total_price[item_name] = item_price * item_quantity
+  hash[item_name] = { price:, quantity: }
+  total_price[item_name] = price * quantity
 end
 
 p hash
