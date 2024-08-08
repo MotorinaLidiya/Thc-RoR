@@ -7,7 +7,7 @@ class Seed
       @station4 = Station.new('Белорусская')
       @station5 = Station.new('Новослободская')
 
-      @train1c = CargoTrain.new(1, 10) # 10 это скорость, не обязательна к вводу
+      @train1c = CargoTrain.new(1, 10)
       @train2p = PassengerTrain.new(2)
       @train3p = PassengerTrain.new(3)
 
@@ -26,7 +26,7 @@ class Seed
     private
 
     def stations
-      [@station1, @station2, @station3]
+      [@station1, @station2, @station3,@station4, @station5]
     end
 
     def trains

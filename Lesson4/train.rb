@@ -4,7 +4,7 @@ class Train
   attr_writer :route
 
   def initialize(number, type, current_speed = 0)
-    @number = number
+    @number = number.to_i
     @type = type
     @wagons = []
     @current_speed = current_speed

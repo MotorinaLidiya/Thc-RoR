@@ -24,65 +24,66 @@ class RailRoad
     @stations, @trains, @wagons, @routes = Seed.create
   end
 
-  def menu_manager
+  def start
     loop do
-      # puts command_list
-      user_input = gets.to_i
-      break if user_input.zero?
-
-      user_choice(user_input)
-      # sleep(1.5)
+      puts
+      show_menu
+      choice = number_choice('Выберите номер действия')
+      action(choice)
     end
   end
 
   private
 
-  def command_list
-    <<~MENU
-      Введите, чтобы выполнить действие (или нажмите 0 для выхода):
-      1. Создать станцию
-      2. Создать поезд
-      3. Создать маршрут
-      4. Управлять станциями в маршруте (добавлять, удалять)
-      5. Назначить маршрут поезду
-      6. Добавить вагон поезда
-      7. Отцепить вагон поезда
-      8. Перемещать поезд по маршруту вперед или назад
-      9. Просмотреть список станций
-      10. Просмотреть список поездов на станции
-      11. Добавить вагон
-    MENU
+  MENU = [
+    {id: 1, title: 'Создать станцию', action: :add_station},
+    {id: 2, title: 'Создать поезд', action: :add_train},
+    {id: 3, title: 'Создать маршрут', action: :add_route},
+    {id: 4, title: 'Управлять станциями в маршруте (добавлять, удалять)', action: :route_manager},
+    {id: 5, title: 'Назначить маршрут поезду', action: :assign_route},
+    {id: 6, title: 'Добавить вагон поезда', action: :attach_wagon},
+    {id: 7, title: 'Отцепить вагон поезда', action: :detach_wagon},
+    {id: 8, title: 'Перемещать поезд по маршруту вперед или назад', action: :move_train},
+    {id: 9, title: 'Просмотреть список станций и список поездов на станции', action: :stations_list},
+    {id: 10, title: 'Создать вагон', action: :add_wagon},
+    {id: 0, title: 'Выход из программы', action: :exit}
+  ].freeze
+
+  def show_menu
+    MENU.each { puts "#{_1[:id]}. #{_1[:title]}" }
   end
 
-  def user_choice(user_input)
-    case user_input
-    when 1 then add_station
-    when 2 then add_train
-    when 3 then add_route
-    when 4 then route_manager
-    when 5 then assign_route
-    when 6 then attach_wagon
-    when 7 then detach_wagon
-    when 8 then move_train
-    when 9 then stations_list
-    when 10 then add_wagon
+  def number_choice(output)
+    puts output.to_s
+    gets.chomp.to_i
+  end
+
+  def string_choice(output)
+    puts output.to_s
+    gets.chomp
+  end
+
+  def action(choice)
+    action = MENU.find { |item| item[:id] == choice }&.dig(:action)
+    if action
+      exit_program if action == :exit
+      send(action)
+    else
+      puts 'Введите корректный номер действия'
     end
   end
 
   def add_station
-    puts 'Введите название станции: '
-    name = gets.chomp
+    name = string_choice('Введите название станции')
     @stations << Station.new(name)
     puts "Добавлена станция #{name}."
   end
 
   def add_train
-    puts 'Введите название поезда: '
-    train = gets.chomp
-    puts 'Выберите тип поезда:
-      1. пассажирский
-      2. грузовой '
-    type = gets.to_i
+    train = number_choice('Введите номер поезда: ')
+    type = number_choice('Выберите тип поезда:
+        1. пассажирский
+        2. грузовой')
     puts case type
          when 1
            @trains << PassengerTrain.new(train, type)
@@ -96,10 +97,9 @@ class RailRoad
   end
 
   def add_route
-    puts 'Введите первую станцию маршрута: '
-    first_station_name = gets.chomp
-    puts 'Введите последнюю станцию маршрута: '
-    last_station_name = gets.chomp
+    @stations.each { |element| puts element }
+    first_station_name = string_choice('Введите первую станцию маршрута: ')
+    last_station_name = string_choice('Введите последнюю станцию маршрута: ')
 
     first_station = @stations.find { _1.name == first_station_name }
     last_station = @stations.find { _1.name == last_station_name }
@@ -114,27 +114,26 @@ class RailRoad
   end
 
   def route_manager
-    puts 'Какой маршрут Вы хотите изменить? Введите первую и последнюю станцию. '
-    first_station_name = gets.chomp
-    last_station_name = gets.chomp
+    @routes.each { |element| puts element }
+    first_station_name = string_choice('Какой маршрут Вы хотите изменить? Введите первую станцию маршрута: ')
+    last_station_name = string_choice('Введите последнюю станцию маршрута: ')
     route = @routes.find { _1.first_station.name == first_station_name && _1.last_station.name == last_station_name}
+
     if route
-      puts 'Маршрут готов к редактированию. Какое действие Вы хотите совершить в маршруте?
+      user_input = number_choice('Маршрут готов к редактированию. Какое действие Вы хотите совершить в маршруте?
       1. добавить станцию
-      2. удалить станцию'
-      user_input = gets.to_i
+      2. удалить станцию')
+      @stations.each { |element| puts element }
       case user_input
       when 1
-        puts 'Какую станцию Вы хотите добавить?'
-        transit_station_name = gets.chomp
+        transit_station_name = string_choice('Какую станцию Вы хотите добавить?')
         transit_station = @stations.find { _1.name == transit_station_name }
         if transit_station
           route.add_transit_station(transit_station)
           puts 'Станция добавлена'
         end
       when 2
-        puts 'Какую станцию Вы хотите удалить?'
-        transit_station_name = gets.chomp
+        transit_station_name = string_choice('Какую станцию Вы хотите удалить?')
         transit_station = @stations.find { _1.name == transit_station_name }
         if transit_station
           route.delete_transit_station(transit_station)
@@ -149,13 +148,13 @@ class RailRoad
   end
 
   def assign_route
-    puts 'Укажите название поезда: '
-    train_number = gets.chomp
+    @trains.each { |element| puts element }
+    train_number = number_choice('Укажите номер поезда: ')
     train = @trains.find { _1.number == train_number }
     if train
-      puts 'Укажите маршрут. Введите первую и последнюю станцию.'
-      first_station = gets.chomp
-      last_station = gets.chomp
+      @routes.each { |element| puts element }
+      first_station = string_choice('Укажите маршрут. Введите первую станцию маршрута: ')
+      last_station = string_choice('Введите последнюю станцию маршрута: ')
       route = @routes.find { _1.first_station.name == first_station && _1.last_station.name == last_station}
       if route
         train.takes_route(route)
@@ -169,10 +168,9 @@ class RailRoad
   end
 
   def add_wagon
-    puts 'Укажите тип вагона для добавления:
+    type = number_choice('Укажите тип вагона для добавления:
       1. пассажирский
-      2. грузовой '
-    type = gets.to_i
+      2. грузовой ')
     puts case type
          when 1
            @wagons << PassengerWagon.new
@@ -186,8 +184,8 @@ class RailRoad
   end
 
   def attach_wagon
-    puts 'Укажите название поезда: '
-    train_number = gets.chomp
+    @trains.each { |element| puts element }
+    train_number = number_choice('Укажите номер поезда: ')
     train = @trains.find { _1.number == train_number }
 
     if train
@@ -207,8 +205,8 @@ class RailRoad
   end
 
   def detach_wagon
-    puts 'Укажите название поезда: '
-    train_number = gets.chomp
+    @trains.each { |element| puts element }
+    train_number = number_choice('Укажите номер поезда: ')
     train = @trains.find { _1.number == train_number }
 
     if train
@@ -227,15 +225,14 @@ class RailRoad
   end
 
   def move_train
-    puts 'Укажите название поезда: '
-    train_number = gets.chomp
+    @trains.each { |element| puts element }
+    train_number = number_choice('Укажите номер поезда: ')
     train = @trains.find { _1.number == train_number }
 
     if train
-      puts 'Укажите куда переместить поезд по маршруту:
+      train_moves = number_choice('Укажите куда переместить поезд по маршруту:
       1. вперед
-      2. назад'
-      train_moves = gets.to_i
+      2. назад')
       puts case train_moves
            when 1
              train.move_next_station
@@ -252,8 +249,12 @@ class RailRoad
   def stations_list
     @stations.each.with_index(1) { |station, index| puts "#{index}. #{station}" }
   end
+
+  def exit_program
+    puts 'Выход из программы.'
+  end
 end
 
 menu = RailRoad.new
 menu.seed
-menu.menu_manager
+menu.start
