@@ -7,6 +7,10 @@ class Route
     @stations = [@first_station, @last_station]
   end
 
+  def to_s
+    "Маршрут: #{@first_station.name} - #{@last_station.name}"
+  end
+
   def add_transit_station(transit_station)
     return @stations.insert(-2, transit_station) unless @stations.include?(transit_station)
 
