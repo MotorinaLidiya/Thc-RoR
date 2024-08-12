@@ -1,6 +1,5 @@
 require_relative 'company_name'
 require_relative 'instance_counter'
-require_relative 'lesson_error'
 
 class Train
   include CompanyName
@@ -133,7 +132,7 @@ class Train
   private
 
   def validate!
-    LessonError.error('Формат номера некорректный (пример формата: 123-45, абв-12, АВГ12)') if number !~ NUMBER_FORMAT
+    raise 'Формат номера некорректный (пример формата: 123-45, абв-12, АВГ12)' if number !~ NUMBER_FORMAT
   end
 
   def can_attach_wagon?(wagon)

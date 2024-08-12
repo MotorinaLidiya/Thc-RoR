@@ -16,7 +16,6 @@ require_relative 'passenger_wagon'
 require_relative 'station'
 require_relative 'wagon'
 require_relative 'seed'
-require_relative 'lesson_error'
 
 class RailRoad
   @stations = @trains = @wagons = @routes = []
@@ -31,10 +30,6 @@ class RailRoad
       show_menu
       choice = number_choice('Выберите номер действия')
       action(choice)
-    rescue LessonError => e
-      puts
-      puts e
-      sleep 2
     end
   end
 
@@ -79,26 +74,40 @@ class RailRoad
   end
 
   def add_station
-    name = string_choice('Введите название станции')
-    @stations << Station.new(name)
-    puts "Добавлена станция #{name}."
+    loop do
+      @name = string_choice('Введите название станции :')
+      @stations << Station.new(@name)
+      puts "Добавлена станция #{@name}."
+      break
+    rescue RuntimeError => e
+      puts e
+      sleep 1
+      retry
+    end
   end
 
   def add_train
-    train = number_choice('Введите номер поезда: ')
-    type = number_choice('Выберите тип поезда:
+    loop do
+      type = number_choice('Выберите тип поезда:
         1. пассажирский
         2. грузовой')
-    puts case type
-         when 1
-           @trains << PassengerTrain.new(train, type)
-           "Добавлен пассажирский поезд #{train}."
-         when 2
-           @trains << CargoTrain.new(train, type)
-           "Добавлен грузовой поезд #{train}."
-         else
-           'Введите 1 или 2.'
-         end
+      raise 'Введите 1 или 2 для выбора типа поезда.' unless [1, 2].include?(type)
+
+      train = string_choice('Введите номер поезда: ')
+      puts case type
+           when 1
+             @trains << PassengerTrain.new(train, type)
+             "Добавлен пассажирский поезд #{train}."
+           when 2
+             @trains << CargoTrain.new(train, type)
+             "Добавлен грузовой поезд #{train}."
+           end
+      break
+    rescue RuntimeError => e
+      puts e
+      sleep 1
+      retry
+    end
   end
 
   def add_route

@@ -1,5 +1,4 @@
 require_relative 'instance_counter'
-require_relative 'lesson_error'
 
 class Station
   include InstanceCounter
@@ -59,9 +58,11 @@ class Station
   private
 
   def validate!
-    LessonError.error('Минимальное количество символов: 4') if name.size < 4
-    LessonError.error('Максимальное количество символов: 30') if name.size > 30
-    LessonError.error('Используйте только русские буквы') if name !~ NAME_FORMAT
+    errors = []
+    errors << 'Минимальное количество символов: 4' if name.size < 4
+    errors << 'Максимальное количество символов: 30' if name.size > 30
+    errors << 'Используйте только русские буквы' if name !~ NAME_FORMAT
+    raise errors.join('. ') unless errors.empty?
   end
 
   def trains_by_type(type)
