@@ -42,7 +42,7 @@ class Train
   end
 
   def attach_wagon(wagon)
-    return 'Поезд движется, нельзя прицепить вагон.' if @current_speed != 0
+    raise 'Поезд движется, нельзя прицепить вагон.' if @current_speed != 0
 
     if can_attach_wagon?(wagon)
       @wagons << wagon
@@ -54,24 +54,21 @@ class Train
     end
   end
 
-  def detach_wagon(wagon)
-    if @current_speed != 0
-      'Поезд движется, нельзя отцепить вагон.'
-    elsif @wagons.include?(wagon) && wagon.is_attached == true
-      @wagons.pop
-      wagon.is_attached = false
-      "Вагон отцеплен. Количество вагонов: #{@wagons.size}."
-    else
-      'Нет вагонов для отцепления.'
-    end
+  def detach_wagon
+    raise 'Нет вагонов в поезде. ' if wagons.size.zero?
+    raise 'Поезд движется, нельзя отцепить вагон.' if @current_speed != 0
+
+    wagon = wagons.pop
+    wagon.is_attached = false if wagon
+    "Вагон отцеплен. Количество вагонов: #{wagons.size}."
   end
 
   def wagon_count
-    @wagons.size
+    wagons.size
   end
 
   def each_wagon_in_train
-    @wagons.each_with_index do |index, wagon|
+    wagons.each_with_index do |index, wagon|
       yield(wagon, index) if block_given?
     end
   end
@@ -81,11 +78,11 @@ class Train
   end
 
   def to_s
-    "Поезд: #{@number}, тип #{@type}, количество вагонов: #{@wagons.size}. "
+    "Поезд: #{number}, тип #{type}, количество вагонов: #{wagons.size}. "
   end
 
   def takes_route(route)
-    return 'У поезда уже назначен путь.' if @route
+    raise "У поезда уже назначен #{@route}." if @route
 
     @route = route
     @current_station = 0
@@ -142,6 +139,6 @@ class Train
   end
 
   def can_attach_wagon?(wagon)
-    wagon.type == self.class::TYPE && wagon.is_attached == false
+    wagon.type == type && wagon.is_attached == false
   end
 end

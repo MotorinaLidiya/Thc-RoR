@@ -1,21 +1,18 @@
 require_relative 'wagon'
 
 class PassengerWagon < Wagon
-  TYPE = :passenger
-
   def initialize(number_of_seats)
-    super(TYPE)
-    @free_seats = number_of_seats
-    @occupied_seats = 0
+    super(:passenger, number_of_seats)
   end
 
   def occupy_seat
-    @free_seats -= 1
-    @occupied_seats += 1
+    raise 'Недостаточно места в вагоне. ' if free_place.zero?
+
+    @used_place += 1
   end
 
   def to_s
     super
-    "Свободных мест в вагоне: #{@free_seats}. Занятых мест в вагоне: #{@occupied_seats}. "
+    "Свободных мест в вагоне: #{free_place}. Занятых мест в вагоне: #{@used_place}. "
   end
 end

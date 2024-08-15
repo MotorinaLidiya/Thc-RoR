@@ -18,15 +18,17 @@ class Route
   end
 
   def add_transit_station(transit_station)
-    return @stations.insert(-2, transit_station) unless @stations.include?(transit_station)
+    raise 'Эта станция уже есть в маршруте.' if @stations.include?(transit_station)
 
-    'Эта станция уже есть в маршруте.'
+    @stations.insert(-2, transit_station)
   end
 
   def delete_transit_station(transit)
-    return @stations.delete(transit) if @stations.include?(transit) && @stations.first != transit && @stations.last != transit
+    unless @stations.include?(transit) && @stations.first != transit && @stations.last != transit
+      raise 'Станция не доступна к удалению из маршрута.'
+    end
 
-    'Станция не доступна к удалению из маршрута.'
+    @stations.delete(transit)
   end
 
   def show_route

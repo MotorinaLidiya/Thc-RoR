@@ -1,21 +1,18 @@
 require_relative 'wagon'
 
 class CargoWagon < Wagon
-  TYPE = :cargo
-
   def initialize(all_volume)
-    super(TYPE)
-    @free_volume = all_volume
-    @occupied_volume = 0
+    super(:cargo, all_volume)
   end
 
   def occupy_volume(volume)
-    @free_volume -= volume
-    @occupied_volume += volume
+    raise 'Недостаточно места в вагоне. ' if free_place < volume
+
+    @used_place += volume
   end
 
   def to_s
     super
-    "Свободный объем в вагоне: #{@free_volume}. Занятый объем в вагоне: #{@occupied_volume}. "
+    "Свободный объем в вагоне: #{free_place}. Занятый объем в вагоне: #{@used_place}. "
   end
 end

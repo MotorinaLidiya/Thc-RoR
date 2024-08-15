@@ -3,7 +3,7 @@
 #  Создавать поезда
 #  Создавать маршруты и управлять станциями в нем (добавлять, удалять)
 #  Назначать маршрут поезду
-#  Добавлять/ отцеплять вагоны
+#  Добавлять/отцеплять вагоны
 #  Перемещать поезд по маршруту вперед и назад
 #  Просматривать список станций и список поездов на станции
 
@@ -114,15 +114,12 @@ class RailRoad
   end
 
   def add_route
-    @stations.each { |element| puts element }
-    first_station_name = string_choice('Введите первую станцию маршрута: ')
-    last_station_name = string_choice('Введите последнюю станцию маршрута: ')
+    puts 'Для добавления маршрута введите первую станцию маршрута: '
+    first_station = select_item(@stations)
+    puts 'Введите вторую станцию маршрута: '
+    last_station = select_item(@stations)
 
-    first_station = @stations.find { _1.name == first_station_name }
-    last_station = @stations.find { _1.name == last_station_name }
-    return puts 'Нет информации о введенных станциях. ' unless first_station && last_station
-
-    return puts 'Введите разные станции. ' if first_station == last_station
+    return puts 'Нельзя создать маршрут из одинаковых станций ' if first_station == last_station
 
     route = Route.new(first_station, last_station)
     @routes << route
@@ -130,51 +127,45 @@ class RailRoad
   end
 
   def route_manager
-    @routes.each { |element| puts element }
-    first_station_name = string_choice('Какой маршрут Вы хотите изменить? Введите первую станцию маршрута: ')
-    last_station_name = string_choice('Введите последнюю станцию маршрута: ')
-    route = @routes.find { _1.first_station.name == first_station_name && _1.last_station.name == last_station_name}
-    return puts 'Маршрут не найден. ' unless route
+    route = select_route
+    loop do
+      user_input = number_choice('Маршрут готов к редактированию. Какое действие Вы хотите совершить в маршруте?
+      1. добавить станцию
+      2. удалить станцию ')
 
-    user_input = number_choice('Маршрут готов к редактированию. Какое действие Вы хотите совершить в маршруте?
-    1. добавить станцию
-    2. удалить станцию ')
-    @stations.each { |element| puts element }
-
-    case user_input
-    when 1
-      transit_station_name = string_choice('Какую станцию Вы хотите добавить? ')
-      transit_station = @stations.find { _1.name == transit_station_name }
-      if transit_station
-        route.add_transit_station(transit_station)
-        puts 'Станция добавлена. '
+      case user_input
+      when 1
+        puts 'Какую станцию Вы хотите добавить? '
+        transit_station = select_item(@stations)
+        if transit_station
+          route.add_transit_station(transit_station)
+          puts 'Станция добавлена. '
+        end
+      when 2
+        puts 'Какую станцию Вы хотите удалить? '
+        transit_station = select_item(@stations)
+        if transit_station
+          route.delete_transit_station(transit_station)
+          puts 'Станция удалена. '
+        end
+      else
+        raise 'Введите 1 или 2. '
       end
-    when 2
-      transit_station_name = string_choice('Какую станцию Вы хотите удалить? ')
-      transit_station = @stations.find { _1.name == transit_station_name }
-      if transit_station
-        route.delete_transit_station(transit_station)
-        puts 'Станция удалена. '
-      end
-    else
-      puts 'Введите 1 или 2. '
+      break
+    rescue StandardError => e
+      puts e.message
+      retry
     end
   end
 
   def assign_route
-    @trains.each { |element| puts element }
-    train_number = string_choice('Укажите номер поезда: ')
-    train = @trains.find { _1.number == train_number }
-    return puts 'Нет данных о поезде. ' unless train
-
-    @routes.each { |element| puts element }
-    first_station = string_choice('Укажите маршрут. Введите первую станцию маршрута: ')
-    last_station = string_choice('Введите последнюю станцию маршрута: ')
-    route = @routes.find { _1.first_station.name == first_station && _1.last_station.name == last_station}
-    return puts 'Маршрут не найден. ' unless route
+    train = select_item(@trains)
+    route = select_route
 
     train.takes_route(route)
     puts "Маршрут назначен для #{train} "
+  rescue StandardError => e
+    puts e.message
   end
 
   def add_wagon
@@ -196,40 +187,28 @@ class RailRoad
   end
 
   def attach_wagon
-    @trains.each { |element| puts element }
-    train_number = string_choice('Укажите номер поезда: ')
-    train = @trains.find { _1.number == train_number }
-    return puts 'Нет данных о поезде. ' unless train
+    train = select_item(@trains)
+    wagon = @wagons.find { _1.type == train.type && _1.is_attached == false }
 
-    train_type = train.type
-    wagon = @wagons.find { _1.type == train_type && _1.is_attached == false }
-    return puts 'Нет доступного вагона к добавлению. ' unless wagon
+    raise 'Нет доступного вагона к добавлению. ' unless wagon
 
     train.attach_wagon(wagon)
     wagon.is_attached = true
-    puts 'Вагон успешно добавлен к поезду. '
+    puts 'Вагон успешно добавлен к поезду.'
+  rescue StandardError => e
+    puts e.message
   end
 
   def detach_wagon
-    @trains.each { |element| puts element }
-    train_number = string_choice('Укажите номер поезда: ')
-    train = @trains.find { _1.number == train_number }
-    return puts 'Нет данных о поезде. ' unless train
-
-    train_type = train.type
-    wagon = train.wagons.find { _1.type == train_type && _1.is_attached == true}
-    return puts 'Нет вагонов в поезде. ' unless wagon
-
-    train.detach_wagon(wagon)
-    wagon.is_attached = false
+    train = select_item(@trains)
+    train.detach_wagon
     puts 'Вагон успешно отцеплен. '
+  rescue StandardError => e
+    puts e.message
   end
 
   def move_train
-    @trains.each { |element| puts element }
-    train_number = string_choice('Укажите номер поезда: ')
-    train = @trains.find { _1.number == train_number }
-    return puts 'Нет данных о поезде. ' unless train
+    train = select_item(@trains)
 
     train_moves = number_choice('Укажите куда переместить поезд по маршруту:
     1. вперед
@@ -249,11 +228,8 @@ class RailRoad
   end
 
   def trains_on_station
-    @stations.each { |element| puts element }
-    station_name = string_choice('Введите станцию, на которой хотите посмотреть список поездов: ')
-    station = @stations.find { _1.name == station_name }
+    station = select_item(@stations)
 
-    return puts 'Нет данных о станции. ' unless station
     return puts 'На станции нет поездов. ' if station.trains.empty?
 
     station.each_train_on_station do |index, train|
@@ -262,11 +238,7 @@ class RailRoad
   end
 
   def wagons_in_train
-    @trains.each { |element| puts element }
-    train_number = string_choice('Укажите номер поезда: ')
-    train = @trains.find { _1.number == train_number }
-
-    return puts 'Нет данных о поезде. ' unless train
+    train = select_item(@trains)
     return puts 'У поезда нет вагонов. ' if train.wagons.empty?
 
     train.each_wagon_in_train do |index, wagon|
@@ -276,11 +248,7 @@ class RailRoad
   end
 
   def take_space_in_wagon
-    @trains.each { |element| puts element }
-    train_number = string_choice('Укажите номер поезда, где хотите занять место/объем: ')
-    train = @trains.find { _1.number == train_number }
-
-    return puts 'Нет данных о поезде. ' unless train
+    train = select_item(@trains)
     return puts 'У поезда нет вагонов. ' if train.wagons.empty?
 
     wagons = []
@@ -305,8 +273,45 @@ class RailRoad
   def exit_program
     puts 'Выход из программы.'
   end
+
+  def select_item(collection)
+    collection.each_with_index { |item, index| puts "#{index + 1}. #{item} "}
+    begin
+      item_name = string_choice('Введите название нужного объекта: ')
+      item = collection.find do |i|
+        field_name = i.respond_to?(:name) ? i.name : i.number
+        field_name == item_name
+      end
+
+      raise 'Нет информации о введенных данных. ' unless item
+    rescue StandardError => e
+      puts e.message
+      retry
+    end
+
+    item
+  end
+
+  def select_route
+    @routes.each_with_index { |item, index| puts "#{index + 1}. #{item} "}
+    begin
+      route_index = number_choice('Укажите номер маршрута: ')
+
+      raise 'Введите корректный номер маршрута.  ' unless route_index.between?(1, @routes.size)
+    rescue StandardError => e
+      puts e.message
+      retry
+    end
+
+    route = @routes[route_index - 1]
+    puts "Вы выбрали маршрут: #{route}"
+    puts 'Станции в маршруте: '
+    route.stations.each_with_index { |station, index| puts "#{index + 1}. #{station.name}" }
+    route
+  end
 end
 
 menu = RailRoad.new
+# require 'debug'
 menu.seed
 menu.start
