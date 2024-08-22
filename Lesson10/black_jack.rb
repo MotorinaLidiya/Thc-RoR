@@ -31,17 +31,29 @@ class BlackJack
   private
 
   def play_round
+    attempts = 0
+    @previous_input = nil
+
     loop do
       show_actions
-      user_choice = gets.to_i
-      break if user_choice == 3
+      user_input = gets.to_i
+      next unless [1, 2, 3].include?(user_input)
 
-      action(user_choice)
-      break if @game.stop_game?
+      if user_input == @previous_input
+        puts 'Нельзя выбрать действие повторно. Выберите другое действие.'
+        next
+      end
+      break if user_input == 3
+
+      @previous_input = user_input
+      action(user_input)
+      attempts += 1
+      break if attempts >= 2 || @game.stop_game?
 
       sleep 1
       @game.dealer_make_move
       break if @game.stop_game?
+
       @game.show_info
     end
   end

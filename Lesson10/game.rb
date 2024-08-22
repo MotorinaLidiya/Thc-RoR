@@ -13,7 +13,7 @@ class Game
   end
 
   def start_round
-    puts "#{user.name}, игра началась!\nСтартовый баланс игроков: 100$."
+    puts "#{user.name}, игра началась!"
 
     deck.renew
     user.cards = []
@@ -76,11 +76,11 @@ class Game
     user_count = user.check_cards_value
     dealer_count = dealer.check_cards_value
 
-    if user_count == dealer_count
+    if user_count == dealer_count || (user_count > 21 && dealer_count > 21)
       user.player_return_bet
       dealer.player_return_bet
       "\nНичья!"
-    elsif user_count > dealer_count && user_count <= 21
+    elsif user_count <= 21 && (user_count > dealer_count || dealer_count > 21)
       user.player_win_bet
       "\n#{user.name} выиграл!"
     else

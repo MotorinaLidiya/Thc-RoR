@@ -7,7 +7,7 @@ class Dealer < Player
   end
 
   def should_take_card?
-    check_cards_value <= 17
+    check_cards_value < 17
   end
 
   def hide_cards
