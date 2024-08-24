@@ -33,7 +33,7 @@ class Player
   end
 
   def show_hand
-    cards.map(&:to_s).join(", ")
+    cards.map(&:to_s).join(', ')
   end
 
   def show_balance
@@ -44,7 +44,13 @@ class Player
     values = cards.map(&:value)
     return cards.sum(&:value) unless contains_subarrays?(values)
 
-    array = [1, 11]
+    ace_array = [1, 11]
+    sum_with_ace(ace_array, values)
+  end
+
+  private
+
+  def sum_with_ace(array, values)
     count = values.count(array)
     values.delete(array)
 
@@ -56,8 +62,6 @@ class Player
 
     sum
   end
-
-  private
 
   def contains_subarrays?(array)
     array.any? { |element| element.is_a?(Array) }

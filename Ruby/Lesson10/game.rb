@@ -14,10 +14,7 @@ class Game
 
   def start_round
     puts "#{user.name}, игра началась!"
-
-    deck.renew
-    user.cards = []
-    dealer.cards = []
+    renew_hand
 
     2.times do
       user.take_card
@@ -28,6 +25,12 @@ class Game
     dealer.player_make_bet
 
     show_info
+  end
+
+  def renew_hand
+    deck.renew
+    user.cards = []
+    dealer.cards = []
   end
 
   def dealer_make_move
@@ -77,16 +80,28 @@ class Game
     dealer_count = dealer.check_cards_value
 
     if user_count == dealer_count || (user_count > 21 && dealer_count > 21)
-      user.player_return_bet
-      dealer.player_return_bet
-      "\nНичья!"
+      draw
     elsif user_count <= 21 && (user_count > dealer_count || dealer_count > 21)
-      user.player_win_bet
-      "\n#{user.name} выиграл!"
+      user_wins
     else
-      dealer.player_win_bet
-      "\n#{dealer.name} выиграл!"
+      dealer_wins
     end
+  end
+
+  def dealer_wins
+    dealer.player_win_bet
+    "\n#{dealer.name} выиграл!"
+  end
+
+  def user_wins
+    user.player_win_bet
+    "\n#{user.name} выиграл!"
+  end
+
+  def draw
+    user.player_return_bet
+    dealer.player_return_bet
+    "\nНичья!"
   end
 
   def total_balance

@@ -14,13 +14,10 @@ class BlackJack
       @game.start_round
       play_round
       sleep 1
-      @game.open_cards
+      round_results
 
-      puts @game.define_winner
-      puts @game.total_balance
-
-      result = @game.check_balances
-      return puts result if result
+      balance_left = @game.check_balances
+      return puts balance_left if balance_left
 
       puts "#{@game.user.name}, хотите сыграть еще раз? (0 - выход, 1 - следующая игра) "
       user_input = gets.to_i
@@ -30,6 +27,12 @@ class BlackJack
 
   private
 
+  def round_results
+    @game.open_cards
+    puts @game.define_winner
+    puts @game.total_balance
+  end
+
   def play_round
     attempts = 0
     @previous_input = nil
@@ -37,10 +40,9 @@ class BlackJack
     loop do
       show_actions
       user_input = gets.to_i
-      next unless [1, 2, 3].include?(user_input)
 
-      if user_input == @previous_input
-        puts 'Нельзя выбрать действие повторно. Выберите другое действие.'
+      if user_input == @previous_input || ![1, 2, 3].include?(user_input)
+        puts 'Выберите корретное действие. Нельзя выбрать действие повторно. '
         next
       end
       break if user_input == 3
@@ -50,7 +52,6 @@ class BlackJack
       attempts += 1
       break if attempts >= 2 || @game.stop_game?
 
-      sleep 1
       @game.dealer_make_move
       break if @game.stop_game?
 
@@ -59,9 +60,9 @@ class BlackJack
   end
 
   MENU = [
-    {id: 1, title: 'Пропустить ход', action: :skip_round},
-    {id: 2, title: 'Добавить карту', action: :take_card},
-    {id: 3, title: 'Открыть карты', action: :open_cards},
+    { id: 1, title: 'Пропустить ход', action: :skip_round },
+    { id: 2, title: 'Добавить карту', action: :take_card },
+    { id: 3, title: 'Открыть карты', action: :open_cards }
   ].freeze
 
   def show_actions

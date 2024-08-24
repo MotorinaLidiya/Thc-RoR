@@ -22,6 +22,7 @@ class Station
     @trains = []
 
     self.class.stations << self
+    register_instance
   end
 
   def train_enters(train)

@@ -29,6 +29,7 @@ class Train
     @current_station = nil
 
     self.class.all_trains << self
+    register_instance
   end
 
   def attach_wagon(wagon)
