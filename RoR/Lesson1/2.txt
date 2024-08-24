@@ -1,0 +1,29 @@
+nc httpbin.org 80
+GET /anything?test=1 HTTP/1.1
+Host: httpbin.org
+
+HTTP/1.1 200 OK
+Date: Sat, 24 Aug 2024 22:17:53 GMT
+Content-Type: application/json
+Content-Length: 313
+Connection: keep-alive
+Server: gunicorn/19.9.0
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
+{
+  "args": {
+    "test": "1"
+  },
+  "data": "",
+  "files": {},
+  "form": {},
+  "headers": {
+    "Host": "httpbin.org",
+    "X-Amzn-Trace-Id": "Root=1-66ca5c11-3b9f81370274c27a6273ba72"
+  },
+  "json": null,
+  "method": "GET",
+  "origin": "79.164.137.199",
+  "url": "http://httpbin.org/anything?test=1"
+}

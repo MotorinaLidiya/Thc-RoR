@@ -1,0 +1,29 @@
+nc httpbin.org 80
+POST /anything HTTP/1.1
+Host: httpbin.org
+Content-Length: 0
+
+HTTP/1.1 200 OK
+Date: Sat, 24 Aug 2024 23:52:14 GMT
+Content-Type: application/json
+Content-Length: 316
+Connection: keep-alive
+Server: gunicorn/19.9.0
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+
+{
+  "args": {},
+  "data": "",
+  "files": {},
+  "form": {},
+  "headers": {
+    "Content-Length": "0",
+    "Host": "httpbin.org",
+    "X-Amzn-Trace-Id": "Root=1-66ca722e-5869b6a613c3512b41dd31c4"
+  },
+  "json": null,
+  "method": "POST",
+  "origin": "79.164.137.199",
+  "url": "http://httpbin.org/anything"
+}
