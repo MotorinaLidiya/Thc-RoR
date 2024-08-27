@@ -1,0 +1,84 @@
+CREATE DATABASE test_guru;
+CREATE TABLE categories (
+  c_id serial PRIMARY KEY, 
+  title varchar(25) NOT null
+);
+
+CREATE TABLE tests (
+  t_id serial PRIMARY KEY,
+  title varchar(50) NOT null,
+  level int,
+  c_id int,
+  FOREIGN KEY (c_id) REFERENCES categories(c_id)
+);
+
+CREATE TABLE questions (
+  q_id serial PRIMARY KEY,
+  body text NOT null,
+  t_id int,
+  FOREIGN KEY (t_id) REFERENCES tests(t_id)
+);
+
+
+INSERT INTO categories(title) VALUES 
+  ('Основы БД'),
+  ('Миграции'),
+  ('Генераторы');
+
+INSERT INTO tests(title, level, c_id) VALUES 
+  ('тест 1', 1, 1),
+  ('тест 2', 2, 2),
+  ('тест 3', 3, 2),
+  ('тест 4', 1, 3),
+  ('тест 5', 2, NULL);
+
+INSERT INTO questions(body, t_id) VALUES 
+  ('вопрос 1', 1),
+  ('вопрос 2', 2),
+  ('вопрос 3', 2),
+  ('вопрос 4', 3),
+  ('вопрос 5', 3);
+
+SELECT * FROM categories;
+SELECT * FROM tests;
+SELECT * FROM questions;
+
+1) Выберите все тесты с уровнем 2 и 3
+SELECT t_id, title, level
+FROM tests
+WHERE level IN (2, 3);
+
+2) Выберите все вопросы для определённого теста (тест 2)
+SELECT q_id, body, title
+FROM questions q
+JOIN tests t ON q.t_id = t.t_id
+WHERE t.title = 'тест2';
+
+3) Обновите атрибуты title и level для строки из tests с помощью одного запроса
+UPDATE tests
+SET title = 'тест 6', level = 10
+WHERE t_id = 1;
+
+SELECT * FROM tests;
+
+4) Удалите все вопросы для конкретного теста с помощью одного запроса
+DELETE FROM questions
+USING tests
+WHERE questions.t_id = tests.t_id AND tests.title = 'тест 3';
+
+SELECT * FROM questions;
+
+5) С помощью JOIN выберите названия всех тестов и названия их категорий
+SELECT 
+  t_id,
+  tests.title AS test_title, 
+  COALESCE(categories.title, 'Нет категории') AS category
+FROM tests
+LEFT JOIN categories
+ON tests.c_id = categories.c_id;
+
+6) С помощью JOIN выберите содержание всех вопросов (атрибут body) и названия связанных с ними тестов
+SELECT questions.body AS question, tests.title AS test_title
+FROM questions
+LEFT JOIN tests
+ON questions.t_id = tests.t_id;
